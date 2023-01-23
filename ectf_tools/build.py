@@ -100,7 +100,7 @@ async def depl(
     depl_dir = str(design.resolve() / depl_in)
     output = await run_shell(
         "docker run"
-        f" -v {depl_dir}:/depl_in:ro"
+        f' -v "{depl_dir}":/depl_in:ro'
         f" -v {image}.{name}.{deployment}.secrets.vol:/secrets"
         " --workdir=/depl_in"
         f" {tag} make SECRETS_DIR=/secrets"
@@ -257,8 +257,8 @@ async def make_dev(
     # Compile
     output = await run_shell(
         "docker run"
-        f" -v {str(dev_in)}:/dev_in:ro"
-        f" -v {str(dev_out)}:/dev_out"
+        f' -v "{str(dev_in)}":/dev_in:ro'
+        f' -v "{str(dev_out)}":/dev_out'
         f" -v {image}.{name}.{deployment}.secrets.vol:/secrets"
         " --workdir=/root"
         f" {tag} /bin/bash -c"
