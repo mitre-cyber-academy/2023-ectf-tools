@@ -77,7 +77,7 @@ async def tools(
     tool_dir = str(design.resolve() / tools_in)
     output = await run_shell(
         "docker run"
-        f" -v {tool_dir}:/tools_in:ro"
+        f' -v "{tool_dir}":/tools_in:ro'
         f" -v {image}.{name}.tools.vol:/tools_out"
         " --workdir=/tools_in"
         f" {tag} make TOOLS_OUT_DIR=/tools_out"
