@@ -358,12 +358,6 @@ containers and volumes
 docker container prune
 docker volume prune
 ```
-
-If that isn't enough, you can clean up all containers and volumes:
-```shell
-docker container prune -a
-docker volume prune -a
-```
 NOTE: these will remove all of the cached containers, so the next builds may take a longer time
 
 These are some helpful commands to have handy when managing your docker state:
