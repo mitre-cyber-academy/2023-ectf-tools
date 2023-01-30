@@ -34,6 +34,7 @@ async def unlock(
 
     ret = await run_shell(
         "docker run"
+        " --rm"
         " --add-host ectf-net:host-gateway"
         f" -v {image}.{name}.tools.vol:/tools_out:ro"
         " --workdir=/tools_out"
@@ -65,6 +66,7 @@ async def pair(
 
     ret = await run_shell(
         "docker run"
+        " --rm"
         " --add-host ectf-net:host-gateway"
         f" -v {image}.{name}.tools.vol:/tools_out:ro"
         " --workdir=/tools_out"
@@ -97,6 +99,7 @@ async def package(
 
     ret = await run_shell(
         "docker run"
+        " --rm"
         " --add-host ectf-net:host-gateway"
         f" -v {image}.{name}.{deployment}.secrets.vol:/secrets"
         f" -v {image}.{name}.tools.vol:/tools_out:ro"
@@ -131,6 +134,7 @@ async def enable(
 
     ret = await run_shell(
         "docker run"
+        " --rm"
         " --add-host ectf-net:host-gateway"
         f" -v {image}.{name}.tools.vol:/tools_out:ro"
         " --workdir=/tools_out"
