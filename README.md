@@ -69,6 +69,8 @@ Docker is used in the eCTF to create an environment for your host tools to execu
 **All Platforms**
 [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
+Remember to run the [post-install](https://docs.docker.com/engine/install/linux-postinstall/) steps and **reboot** if you are using Linux.
+
 ### Python
 Python is a highly readable language with substantial support, which makes it easy to get started with powerful development capability. Setting up a Python virtual environment makes it easy to handle dependencies. Python is used in the eCTF tools repository we provide, as well as our reference design example. The reference design requires Python 3.7 or above.
 
@@ -97,6 +99,16 @@ The following sections detail how to install the recommended software for this c
 
 ### ARM GNU Toolchain
 Our custom build process for the embedded software that will be loaded onto the TI board will run in a Docker container. Therefore, it is not necessary to install a compiler on your local machine. However, it may be helpful to have if you want to do any local builds of your code or debug any build issues. A popular cross-compilation toolchain for ARM is the GNU Toolchain.
+
+**Ubuntu 22.04 or above**
+[xPack GNU Arm Embedded GCC](https://xpack.github.io/arm-none-eabi-gcc/)
+
+Follow the "Manual install" instructions. After the installation, you will need to add the bin directory to your PATH environment variable. Add the following line to your `~/.bashrc` or `~/.zshrc` file with your installation path:
+```bash
+# >>> ARM >>>
+export PATH="$PATH:/<parent_path>/xpack-arm-none-eabi-gcc-11.3.1-1.1/bin/"
+# <<< ARM <<<
+```
 
 **All Platforms**
 [https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
@@ -130,16 +142,32 @@ Extensions can be added to Visual Studio Code to add features that make it feel 
 ##### Cortex-Debug
 To configure Visual Studio Code with the Cortex-Debug extension and OpenOCD, you will need to create a launch configuration in Visual Studio Code that tells the extension information about your debug session such as the source code location, the path to your OpenOCD executable, and the board configuration files for OpenOCD to use.
 
+For Windows: Set the `cortex-debug.armToolchainPath` setting in VSCode to the path to your ARM GNU Toolchain installation. This will allow the extension to find the `arm-none-eabi-gdb` executable.
+
 In your design repository, an example debug launch configuration could look like this:
 ```json
 {
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Cortex Debug",
-            "cwd": "${workspaceFolder}",
-            "executable": "${workspaceRoot}/path/to/application.elf",
-            "armToolchainPath": "/path/to/arm-none-eabi/bin",
+            "name": "Fob",
+            "cwd": "${workspaceFolder}/fob",
+            "executable": "/path/to/fob_image/fob0.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "openocd",
+            "device": "TM4C123GH6PM",
+            "configFiles": [
+                "interface/ti-icdi.cfg",
+                "board/ti_ek-tm4c123gxl.cfg"
+            ],
+            "svdFile": "${workspaceRoot}/debug/TM4C123GH6PM.svd"
+        },
+        {
+            "name": "Car",
+            "cwd": "${workspaceFolder}/car",
+            "executable": "/path/to/car_image/car0.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
@@ -204,6 +232,12 @@ devices, or host tools.
 python3 -m ectf_tools build.env --design <PATH_TO_DESIGN> --name <SYSTEM_NAME>
 ```
 
+```shell
+python3 -m ectf_tools build.env \
+--design <PATH_TO_DESIGN> \
+--name tools
+```
+
 This builds a Docker image that will be used to create build and run
 environments for the system. Each subsequent step will be run in temporary
 containers, where all inputs are provided via read-only volumes, and outputs are
@@ -220,6 +254,11 @@ repo.
 ```shell
 python3 -m ectf_tools build.tools --design <PATH_TO_DESIGN> --name <SYSTEM_NAME>
 ```
+```shell
+python3 -m ectf_tools build.tools \
+--design <PATH_TO_DESIGN> \
+--name tools
+```
 
 This step creates a volume containing host tools that will be used when running
 the system. You must pass the path to the design repo as an argument, and the
@@ -231,6 +270,12 @@ python scripts and do not need to be compiled.
 ```shell
 python3 -m ectf_tools build.depl --design <PATH_TO_DESIGN> --name <SYSTEM_NAME> --deployment <DEPLOYMENT_NAME>
 ```
+```shell
+python3 -m ectf_tools build.depl \
+--design <PATH_TO_DESIGN> \
+--name tools \
+--deployment test
+```
 
 This step generates system-wide secrets for a specific instance of the system
 (i.e., a deployment). The eCTF tools will invoke the design deployment Makefile,
@@ -239,6 +284,22 @@ where secrets can be stored on a specific output volume.
 #### 1d. `build.car_fob_pair`
 ```shell
 python3 -m ectf_tools build.car_fob_pair --design <PATH_TO_DESIGN> --name <SYSTEM_NAME> --deployment <DEPLOYMENT_NAME> --car-out <CAR_OUTPUT_FOLDER> --fob-out <FOB_OUTPUT_FOLDER> --car-name <CAR_BINARY_NAME> --fob-name <FOB_BINARY_NAME> --car-id <CAR_ID> --pair-pin <FOB_PAIR_PIN>
+```
+```shell
+python3 -m ectf_tools build.car_fob_pair \
+--design <PATH_TO_DESIGN> \
+--name tools \
+--deployment test \
+--car-out car_image \
+--fob-out fob_image \
+--car-name car0 \
+--fob-name fob0 \
+--car-id 1 \
+--pair-pin 123456 \
+--car-unlock-secret 'CarUnlocked' \
+--car-feature1-secret 'Feature1' \
+--car-feature2-secret 'Feature2' \
+--car-feature3-secret 'Feature3'
 ```
 
 This step builds car and pre-paired fob binaries that can be loaded into the
@@ -250,6 +311,14 @@ so they can be loaded into the device.
 #### 1d. `build.fob`
 ```shell
 python3 -m ectf_tools build.fob --design <PATH_TO_DESIGN> --name <SYSTEM_NAME> --deployment <DEPLOYMENT_NAME> --fob-out <FOB_OUTPUT_FOLDER> --fob-name <FOB_BINARY_NAME>
+```
+```shell
+python3 -m ectf_tools build.fob \
+--design <PATH_TO_DESIGN> \
+--name tools \
+--deployment test \
+--fob-out fob_image \
+--fob-name fob1
 ```
 
 This step builds an unpaired fob binary that can be loaded into the
