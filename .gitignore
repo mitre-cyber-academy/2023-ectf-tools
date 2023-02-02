@@ -1,2 +1,8 @@
 __pycache__/
 *.egg-info/
+
+ectf-venv/
+
+car_image/
+fob_image/
+package/
