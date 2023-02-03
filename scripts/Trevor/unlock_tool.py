@@ -45,7 +45,7 @@ def unlock(serial_port):
 
             # Read 1 byte from serial
             unlock_received += car_connection.read()
-        except serial.timeout:
+        except serial.SerialTimeoutException:
             print("Serial timeout - finished receiving")
             break
 
