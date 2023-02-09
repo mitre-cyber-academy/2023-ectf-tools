@@ -263,7 +263,7 @@ async def make_dev(
         " --workdir=/root"
         f" {tag} /bin/bash -c"
         ' "'
-        " cp -r /dev_in/* /root/ &&"
+        " cp -r /dev_in/. /root/ &&"
         f" make {make_target}"
         f" {defines}"
         f" SECRETS_DIR=/secrets"
