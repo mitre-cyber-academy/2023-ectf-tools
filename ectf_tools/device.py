@@ -12,6 +12,7 @@ import asyncio
 import logging
 import socket
 import select
+from sys import platform
 from enum import Enum
 from pathlib import Path
 from rich.progress import Progress
@@ -87,18 +88,28 @@ def get_serial_port():
 
 def verify_resp(ser: Serial, expected: BootloaderResponseCode):
     resp = ser.read(1)
-    while resp == b"":
-        resp = ser.read(1)
+    if platform == "linux" or platform == "linux2":
+        while resp == b"\x00":
+            resp = ser.read(1)
+    else:
+        while resp == b"":
+            resp = ser.read(1)
 
     assert BootloaderResponseCode(resp) == expected
 
 
 def verify_sec_resp(ser: Serial, print_out: bool = True, logger: logging.Logger = None):
     resp = ser.read(1)
-    while (resp == b"") or (
-        not ord(resp) in (secure_bl_success_codes + secure_bl_error_codes)
-    ):
-        resp = ser.read(1)
+    if platform == "linux" or platform == "linux2":
+        while (resp == b"\x00") or (
+            not ord(resp) in (secure_bl_success_codes + secure_bl_error_codes)
+        ):
+            resp = ser.read(1)
+    else:
+        while (resp == b"") or (
+            not ord(resp) in (secure_bl_success_codes + secure_bl_error_codes)
+        ):
+            resp = ser.read(1)
 
     logger = logger or get_logger()
 
@@ -115,11 +126,19 @@ def verify_mode_change_resp(
     ser: Serial, dev_num: int, print_out: bool = True, logger: logging.Logger = None
 ):
     resp = ser.read(1)
-    while (resp == b"") or (
-        not ord(resp)
-        in (secure_bl_mode_change_success_codes + secure_bl_mode_change_error_codes)
-    ):
-        resp = ser.read(1)
+    if platform == "linux" or platform == "linux2":
+        while (resp == b"\x00") or (
+            not ord(resp)
+            in (secure_bl_mode_change_success_codes + secure_bl_mode_change_error_codes)
+        ):
+            resp = ser.read(1)
+    else:
+        while (resp == b"") or (
+            not ord(resp)
+            in (secure_bl_mode_change_success_codes + secure_bl_mode_change_error_codes)
+        ):
+            resp = ser.read(1)
+    
 
     logger = logger or get_logger()
 
