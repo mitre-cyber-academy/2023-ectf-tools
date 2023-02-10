@@ -89,7 +89,7 @@ def get_serial_port():
 def verify_resp(ser: Serial, expected: BootloaderResponseCode):
     resp = ser.read(1)
     if platform == "linux" or platform == "linux2":
-        while resp == b"\x00":
+        while (resp == b"\x00") or (resp == b""):
             resp = ser.read(1)
     else:
         while resp == b"":
@@ -101,7 +101,7 @@ def verify_resp(ser: Serial, expected: BootloaderResponseCode):
 def verify_sec_resp(ser: Serial, print_out: bool = True, logger: logging.Logger = None):
     resp = ser.read(1)
     if platform == "linux" or platform == "linux2":
-        while (resp == b"\x00") or (
+        while (resp == b"\x00") or (resp == b"") or (
             not ord(resp) in (secure_bl_success_codes + secure_bl_error_codes)
         ):
             resp = ser.read(1)
@@ -127,7 +127,7 @@ def verify_mode_change_resp(
 ):
     resp = ser.read(1)
     if platform == "linux" or platform == "linux2":
-        while (resp == b"\x00") or (
+        while (resp == b"\x00") or (resp == b"") or (
             not ord(resp)
             in (secure_bl_mode_change_success_codes + secure_bl_mode_change_error_codes)
         ):
