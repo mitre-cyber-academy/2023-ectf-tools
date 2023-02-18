@@ -322,7 +322,7 @@ car-id and feature-number as well as shared secrets to generate a package.
 
 #### 3d. `run.enable`
 ```shell
-python3 -m ectf_tools run.enable --name <SYSTEM_NAME> --fob-bridge <FOB_SOCKET> --package_in <PACKAGE_IN> --package_name <PACKAGE_NAME>
+python3 -m ectf_tools run.enable --name <SYSTEM_NAME> --fob-bridge <FOB_SOCKET> --package-in <PACKAGE_IN> --package-name <PACKAGE_NAME>
 ```
 
 This run step invokes the enable host tool, which reads in a previously created
