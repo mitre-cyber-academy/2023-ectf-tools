@@ -144,7 +144,7 @@ async def load_hw(
 
     # Try to connect to the serial port
     logger.info(f"Connecting to serial port {dev_serial}...")
-    ser = Serial(dev_serial, 115200, timeout=2)
+    ser = Serial(dev_serial, 115200, timeout=2, inter_byte_timeout=0)
     ser.reset_input_buffer()
     logger.info(f"Connection opened on {dev_serial}")
 
@@ -233,7 +233,7 @@ async def load_sec_hw(
 
     # Try to connect to the serial port
     logger.info(f"Connecting to serial port {dev_serial}...")
-    ser = Serial(dev_serial, 115200, timeout=2)
+    ser = Serial(dev_serial, 115200, timeout=2, inter_byte_timeout=0)
     ser.reset_input_buffer()
     logger.info(f"Connection opened on {dev_serial}")
 
@@ -297,10 +297,10 @@ async def mode_change(
     logger = logger or logging.getLogger()
 
     # Open serial ports
-    ser1 = Serial(dev1_serial, 115200, timeout=2)
+    ser1 = Serial(dev1_serial, 115200, timeout=2, inter_byte_timeout=0)
     ser1.reset_input_buffer()
 
-    ser2 = Serial(dev2_serial, 115200, timeout=2)
+    ser2 = Serial(dev2_serial, 115200, timeout=2, inter_byte_timeout=0)
     ser2.reset_input_buffer()
 
     logger.info(f"Connected to bootloaders on {dev1_serial} and {dev2_serial}")
@@ -380,7 +380,7 @@ class Port:
         # If not connected, try to connect to serial device
         if not self.ser:
             try:
-                ser = Serial(self.device_serial, baudrate=self.baudrate, timeout=0.1)
+                ser = Serial(self.device_serial, baudrate=self.baudrate, timeout=0.1, inter_byte_timeout=0)
                 ser.reset_input_buffer()
                 self.ser = ser
                 self.logger.info(f"Connection opened on {self.device_serial}")
