@@ -10,11 +10,13 @@
 
 import asyncio
 import logging
-import socket
 import select
+import socket
+import subprocess
 from enum import Enum
 from pathlib import Path
 from rich.progress import Progress
+from sys import platform
 from typing import Optional
 
 from serial import Serial
@@ -144,6 +146,8 @@ async def load_hw(
 
     # Try to connect to the serial port
     logger.info(f"Connecting to serial port {dev_serial}...")
+    if platform != "win32":
+        subprocess.run(["stty", "-F", dev_serial, "brkint"])
     ser = Serial(dev_serial, 115200, timeout=2, inter_byte_timeout=0)
     ser.reset_input_buffer()
     logger.info(f"Connection opened on {dev_serial}")
@@ -233,6 +237,8 @@ async def load_sec_hw(
 
     # Try to connect to the serial port
     logger.info(f"Connecting to serial port {dev_serial}...")
+    if platform != "win32":
+        subprocess.run(["stty", "-F", dev_serial, "brkint"])
     ser = Serial(dev_serial, 115200, timeout=2, inter_byte_timeout=0)
     ser.reset_input_buffer()
     logger.info(f"Connection opened on {dev_serial}")
@@ -297,6 +303,9 @@ async def mode_change(
     logger = logger or logging.getLogger()
 
     # Open serial ports
+    if platform != "win32":
+        subprocess.run(["stty", "-F", dev1_serial, "brkint"])
+        subprocess.run(["stty", "-F", dev2_serial, "brkint"])
     ser1 = Serial(dev1_serial, 115200, timeout=2, inter_byte_timeout=0)
     ser1.reset_input_buffer()
 
@@ -380,6 +389,8 @@ class Port:
         # If not connected, try to connect to serial device
         if not self.ser:
             try:
+                if platform != "win32":
+                    subprocess.run(["stty", "-F", self.device_serial, "brkint"])
                 ser = Serial(self.device_serial, baudrate=self.baudrate, timeout=0.1, inter_byte_timeout=0)
                 ser.reset_input_buffer()
                 self.ser = ser
